@@ -29,6 +29,9 @@ This project is part of the [OPENTUNITY](https://opentunity.eu) (OPtimisation of
   - [Command-Line Interface](#command-line-interface)
 - [Supported Formats](#supported-formats)
 - [Usage](#usage)
+- [Advanced Features](#advanced-features)
+  - [Automatic Topology Identification](#automatic-topology-identification-smart-meter-importer)
+  - [Interactive Network Visualization](#interactive-network-visualization-visualizer-notifiers)
 - [Interactive Console Features](#interactive-console-features)
 - [Architecture](#architecture)
 - [Examples](#examples)
@@ -135,7 +138,7 @@ python src/main.py --iFormat ExcelImporter --input_file data/topology.xlsx --oFo
 | **IEEE** | `IEEEImporter` | IEEE standard formats |
 | **PowSyBl** | `PowsyblImporter` | PowSyBl XIIDM format |
 | **MongoDB** | `MongodbImporter` | MongoDB database import |
-| **Smart Meters** | `SmartMeterDataImporter` | Smart meter data integration |
+| **Smart Meters** | `SmartMeterDataImporter` | **ADVANCED**: Automatic topology identification from smart meter measurements |
 
 ### Exporters
 
@@ -154,10 +157,13 @@ python src/main.py --iFormat ExcelImporter --input_file data/topology.xlsx --oFo
 
 Notifiers perform post-processing on exported data:
 
-- **CytoscapeJsExporter**: Generate interactive web visualizations
-- **VisualizerNotifier**: Custom visualization pipelines
-- **PandapowerVisualizerNotifier**: PandaPower-specific visualizations
-- **ApiNotifier**: Send results to REST APIs
+| Notifier | Description |
+|----------|-------------|
+| **VisualizerNotifier** | **Interactive graphical visualization**: Generates HTML with network topology diagram, automatically opens in browser |
+| **PandapowerVisualizerNotifier** | **PandaPower visualization**: Creates interactive single-line diagrams with color-coded elements |
+| **CytoscapeJsExporter** | Generate interactive web visualizations using Cytoscape.js library |
+| **ApiNotifier** | Send conversion results to REST APIs for integration with other systems |
+| **JsonpathNgNotifier** | Transform and filter exported data using JSONPath queries |
 - **JsonpathNgNotifier**: JSONPath-based data transformation
 
 ## Usage
@@ -187,6 +193,94 @@ python src/main.py [OPTIONS]
 ### Format-Specific Parameters
 
 Each importer and exporter may require additional parameters. Use the plugin's documentation or check the source code for details.
+
+## Advanced Features
+
+### Automatic Topology Identification (Smart Meter Importer)
+
+One of the most innovative features of Topology Alchemy, developed as part of OPENTUNITY research, is the **automatic topology identification** capability through the `SmartMeterDataImporter`.
+
+**What It Does:**
+This advanced importer reconstructs electrical grid topology automatically from historical smart meter measurements, eliminating the need for manual topology mapping or pre-existing network documentation.
+
+**How It Works:**
+The algorithm analyzes temporal patterns in smart meter data to infer network structure:
+1. **Correlation Analysis**: Identifies connected meters by analyzing voltage profile similarities
+2. **Power Flow Patterns**: Infers line connections from active/reactive power measurements
+3. **Hierarchical Clustering**: Groups meters into substations and feeders
+4. **Statistical Validation**: Verifies discovered topology against physical constraints
+
+**Input Data Format:**
+Place CSV files in a folder with the following structure:
+```csv
+timestamp,meterId,P,Q,V
+2024-01-01 00:00:00,SM001,2.5,0.8,230.2
+2024-01-01 00:15:00,SM001,2.3,0.7,229.8
+2024-01-01 00:00:00,SM002,1.8,0.5,230.5
+```
+
+Where:
+- `timestamp`: ISO 8601 datetime format
+- `meterId`: Unique smart meter identifier
+- `P`: Active power (kW)
+- `Q`: Reactive power (kVAr)
+- `V`: Voltage (Volts)
+
+**Use Cases:**
+- Networks with incomplete or outdated documentation
+- Real-time topology verification
+- Grid structure change detection
+- Automated network model updates
+
+**Example:**
+```bash
+python src/main.py --iFormat SmartMeterDataImporter --input_folder data/smart_meters/ --network_id auto_network --system LV --oFormat PandapowerExporter --output_file results/discovered_topology.json
+```
+
+### Interactive Network Visualization (Visualizer Notifiers)
+
+Topology Alchemy includes powerful **visualization notifiers** that generate interactive graphical representations of your network as the final step in the conversion process.
+
+**Available Visualizers:**
+
+1. **VisualizerNotifier** - General-purpose interactive visualization
+   - Generates self-contained HTML files
+   - Pan and zoom capabilities
+   - Hover tooltips with element properties
+   - Automatic browser opening
+
+2. **PandapowerVisualizerNotifier** - Power system specialized visualization
+   - Single-line diagram representation
+   - Color-coded elements by voltage level
+   - Load and generation indicators
+   - Professional power system styling
+
+**Key Features:**
+- **Instant Visual Validation**: See your converted network immediately
+- **Quality Assurance**: Quickly spot missing connections or errors
+- **Documentation**: Generate visual reports for stakeholders
+- **Interactive Exploration**: Zoom, pan, and inspect element details
+- **Cross-Platform**: Works on Windows, Linux, macOS (including WSL)
+- **No External Dependencies**: Self-contained HTML files
+
+**Example with Visualization:**
+```bash
+# Convert and visualize in one step
+python src/main.py --iFormat ExcelImporter --input_file network.xlsx --oFormat PandapowerExporter --output_file network.json --nFormat PandapowerVisualizerNotifier --notifier_file visualization.html --open_browser true
+```
+
+The visualization will:
+1. Export your network to the specified format
+2. Generate an interactive HTML diagram
+3. Automatically open it in your default browser
+4. Display the complete network topology with all elements
+
+**Perfect For:**
+- Post-conversion validation
+- Debugging topology issues
+- Creating documentation
+- Stakeholder presentations
+- Educational demonstrations
 
 ## Interactive Console Features
 
