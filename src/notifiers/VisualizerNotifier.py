@@ -59,7 +59,7 @@ class VisualizerNotifier(Notifier):
     
     def required_parameters(self) -> dict:
         return {
-            "notifier_file": None,
+            "notifier_file": "text.html",
             "open_browser": True  # Default to opening in browser
         }
 
@@ -87,6 +87,8 @@ class VisualizerNotifier(Notifier):
             converting paths appropriately for Windows browser opening.
         """
         pp_exp = PandapowerExporter()
+        pp_exp.line_power_unit = "KW"
+        pp_exp.load_power_unit = "KW"
         pp_net:pandapowerNet =  await pp_exp._create_all_elements(network=network, logger=logger)
 
         notifier_file = params.get("notifier_file")
