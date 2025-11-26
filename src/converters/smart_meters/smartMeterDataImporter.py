@@ -113,7 +113,7 @@ class smartMeterDataImporter(Importer):
         # Current implementation: Load reference network from PandaPower
         ppImp = PandapowerImporter() 
         network = await ppImp.import_topology(logger=logger, params={
-            "input_file": "./tests/results/swisszerlandPP.json",
+            "input_file": "./examples/swisszerlandPP.json",
             "system_id": params.get("system"),
             "network_id": params.get("network_id")
         })
