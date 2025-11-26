@@ -27,7 +27,7 @@ python-jsonpath>=1.0.0
 # Logging and utilities
 coloredlogs>=15.0
 colorama>=0.4.4          # Cross-platform colored terminal output (for console app)
-
+powersystem_analysis-0.2.tar.gz
 # NOTE: The following dependency is from a private repository and has been commented out
 # Users will need to install it manually or use an alternative if required
 # powersystem_analysis @ git+ssh://git@gitlabnew.depid.local/energia/powersystem-analysis.git
