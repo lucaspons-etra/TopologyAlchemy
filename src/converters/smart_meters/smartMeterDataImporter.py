@@ -119,7 +119,5 @@ class smartMeterDataImporter(Importer):
         })
         
         logger.info("Smart meter data processed successfully.")
-        logger.info(f"Identified network structure: {len(network.substations)} substations, "
-                   f"{len(network.getElements('buses'))} buses")
         
         return network
